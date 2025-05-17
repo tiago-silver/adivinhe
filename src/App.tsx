@@ -1,4 +1,4 @@
-
+import { useState, useEffect } from 'react'
 
 import './global.css'
 import style from "./app.module.css"
@@ -8,25 +8,50 @@ import { Letter } from './components/Letter'
 
 import { Input } from './components/Input'
 import { Button } from './components/Button'
+import { LettersUsed } from './components/LettersUsed'
+
+import { WORDS, type Challenge } from './utils/words'
 
 function App() {
+  const [attempts, setAttempts] = useState(0)
+  // guardar a letra 
+  const [letter, setLetter] = useState("")
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
 
   function handleRestartGame(){
     alert("reiniciar o jogo")
+  }
+  function startGame(){
+    const index = Math.floor(Math.random()* WORDS.length)
+
+    const randomWord = WORDS[index]
+    setChallenge(randomWord)
+
+    setAttempts(0)
+    setLetter("")
+  }
+
+  useEffect(() => {
+    startGame()
+  }, [])
+
+  if(!challenge) {
+    return 
   }
 
   return (
     <div className={style.container}>
       <main>
-         <Header current={0} max={10} onRestart={handleRestartGame}/>
+         <Header current={attempts} max={10} onRestart={handleRestartGame}/>
          <Tip tip="Um framework JavaScript para construir interfaces de usuário" />
 
           <div className={style.word} >
-            <Letter value='R'/>
-            <Letter value='e'/>  
-            <Letter value='A'/>
-            <Letter value='c'/>
-            <Letter value='t'/>
+
+            {
+              challenge.word.split("").map(()=> <Letter value=''/>)
+            }
+            
+           
           </div>
 
           <h4>Palpite</h4>
@@ -35,6 +60,8 @@ function App() {
             <Input autoFocus  maxLength={1} placeholder='?'/>
             <Button title="Confirmar" />
           </div>
+
+          <LettersUsed />
       </main>
     </div>
   )
