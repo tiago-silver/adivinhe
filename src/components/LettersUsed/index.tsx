@@ -1,14 +1,30 @@
 import style from "./style.module.css"
 // Pode colocar um componente dentro de outro componente
 import { Letter } from "../Letter"
-export function LettersUsed() {
+
+// Cria tipagem 
+export type LettersUsedProps = {
+    value: string
+    correct: boolean
+}
+
+type Props = {
+    data: LettersUsedProps[]
+}
+
+export function LettersUsed({data}:Props) {
     return <div className={style.lettersUsed}>
         <h5>Letras usadas</h5>
 
         <div>
-            <Letter value="z" size="small" color="correct"/>
-            <Letter value="X" size="small" color="wrong"/>
-            <Letter value="X" size="small" color="wrong"/>
+            {
+                data.map(({value, correct}) => (
+
+                    <Letter value={value} size="small" color={correct ? "correct" : "wrong"}/>
+                ))
+            }
+           
+            
         </div>
     </div>
 }
