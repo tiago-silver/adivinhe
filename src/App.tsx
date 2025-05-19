@@ -14,16 +14,22 @@ import { WORDS, type Challenge } from './utils/words'
 
 function App() {
   const [score, setScore] = useState(0)
-  const [attempts, setAttempts] = useState(0)
+  
   // guardar a letra 
   const [letter, setLetter] = useState("")
   const [challenge, setChallenge] = useState<Challenge | null>(null)
 
   const [lettersUsed, setLettersUsed] = useState<LettersUsedProps[]>([])
 
+  const ATTEMPTS_MARGIN = 5
+
 
   function handleRestartGame(){
-    alert("reiniciar o jogo")
+    const isConfirmed = window.confirm("Deseja realmente reiniciar o jogo?")
+
+    if(isConfirmed){
+      startGame()
+    }
   }
 
 
@@ -42,6 +48,7 @@ function App() {
     const exist = lettersUsed.find((used)=> used.value.toUpperCase() === value)
 
     if(exist){
+      setLetter("")
       alert(`Você já usou a letra ${value}!`)
       return
     }
@@ -63,14 +70,41 @@ function App() {
     const randomWord = WORDS[index]
     setChallenge(randomWord)
 
-    setAttempts(0)
+    setScore(0)
     setLetter("")
+    setLettersUsed([])
+  }
+
+  function endGame(message: string){
+    alert(message)
+    startGame()
   }
 
 
   useEffect(() => {
     startGame()
   }, [])
+
+  useEffect(() => {
+    if(!challenge){
+      return
+    }
+
+    if(score === challenge.word.length){
+      setTimeout(()=>{
+        return endGame("Parabéns, você descobriu a palavra!")
+
+      }, 200)
+
+    }
+    const attemptsLimit = challenge.word.length + ATTEMPTS_MARGIN
+
+    if(lettersUsed.length === attemptsLimit){
+      return endGame(`Infelizmente você atingiu o limite de tentativas! A palavra era ${challenge.word}`)
+
+    }
+
+  }, [score, lettersUsed.length])
 
   if(!challenge) {
     return 
@@ -79,13 +113,19 @@ function App() {
   return (
     <div className={style.container}>
       <main>
-         <Header current={attempts} max={10} onRestart={handleRestartGame}/>
+         <Header current={lettersUsed.length} max={challenge.word.length + ATTEMPTS_MARGIN} onRestart={handleRestartGame}/>
          <Tip tip={challenge.tip} />
 
           <div className={style.word} >
 
             {
-              challenge.word.split("").map(()=> <Letter value=''/>)
+              challenge.word.split("").map((letter, index) => {
+
+                const letterUsed = lettersUsed.find((used)=> used.value.toUpperCase() === letter.toUpperCase())
+
+                console.log(letterUsed)
+                return <Letter key={index} value={letterUsed?.value} color={letterUsed?.correct ? "correct" : "default"} />
+              })
             }
             
            
